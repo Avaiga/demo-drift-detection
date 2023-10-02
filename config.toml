@@ -1,0 +1,71 @@
+
+[DATA_NODE.ref_data]
+storage_type = "csv"
+default_path = "data_ref.csv"
+scope = "SCENARIO:SCOPE"
+
+[DATA_NODE.compare_data]
+storage_type = "csv"
+scope = "SCENARIO:SCOPE"
+
+[TASK.detect_categorical]
+inputs = ["ref_data:SECTION"]
+outputs = ["cat_cols:SECTION"]
+function = "__main__.detect_categorical:function"
+skippable = "True:bool"
+
+[TASK.detect_numerical]
+inputs = ["ref_data:SECTION"]
+outputs = ["num_cols:SECTION"]
+function = "__main__.detect_numerical:function"
+skippable = "True:bool"
+
+[TASK.kolmogorov]
+inputs = ["compare_data:SECTION", "ref_data:SECTION", "num_cols:SECTION"]
+outputs = ["num_results:SECTION"]
+function = "__main__.kolmogorov:function"
+skippable = "True:bool"
+
+[TASK.chi_squared]
+inputs = ["compare_data:SECTION", "ref_data:SECTION", "cat_cols:SECTION"]
+outputs = ["cat_results:SECTION"]
+function = "__main__.chi_squared:function"
+skippable = "True:bool"
+
+[DATA_NODE.cat_cols]
+storage_type = "pickle"
+scope = "SCENARIO:SCOPE"
+
+[DATA_NODE.num_cols]
+storage_type = "pickle"
+scope = "SCENARIO:SCOPE"
+
+[DATA_NODE.num_results]
+storage_type = "pickle"
+scope = "SCENARIO:SCOPE"
+
+[DATA_NODE.cat_results]
+storage_type = "pickle"
+scope = "SCENARIO:SCOPE"
+
+[TASK.collect_results]
+inputs = ["num_results:SECTION", "cat_results:SECTION"]
+outputs = ["results:SECTION"]
+function = "__main__.collect_results:function"
+skippable = "True:bool"
+
+[DATA_NODE.results]
+storage_type = "pickle"
+scope = "SCENARIO:SCOPE"
+
+[PIPELINE.drift_pipeline]
+tasks = [
+    "detect_numerical:SECTION",
+    "detect_categorical:SECTION",
+    "kolmogorov:SECTION",
+    "chi_squared:SECTION",
+    "collect_results:SECTION",
+]
+
+[SCENARIO.drift_scenario]
+pipelines = ["drift_pipeline:SECTION"]

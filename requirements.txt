@@ -1,0 +1,4 @@
+taipy
+pandas
+numpy
+scipy

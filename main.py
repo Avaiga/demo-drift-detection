@@ -220,7 +220,7 @@ def on_button(state):
     Runs the drift detection scenario and displays the results when the button is clicked.
     """
     scenario = tp.create_scenario(scenario_cfg)
-    state.compare_data = pd.read_csv(state.compare_path + ".csv")
+    state.compare_data = pd.read_csv("data/" + state.compare_path + ".csv")
     scenario.compare_data.write(state.compare_data)
     tp.submit(scenario)
     state.results = scenario.results.read()

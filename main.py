@@ -1,7 +1,14 @@
+"""
+Drift Detection Taipy Demo
+
+Please refer to https://docs.taipy.io/en/latest/manuals/gui/ for more details.
+"""
+
+from taipy.gui import Gui, notify
+
+
 import taipy as tp
-from taipy import Gui, Config
-from taipy.gui import notify
-import numpy as np
+from taipy import Config
 import pandas as pd
 import scipy.stats as stats
 
@@ -170,7 +177,19 @@ compare_path = "data_ref"
 compare_data = pd.read_csv(compare_path + ".csv")
 
 
-def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame) -> pd.DataFrame:
+def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame):
+    """
+    Merges the reference and comparison data into a single dataframe.
+    The Dataframe is prepared for plotting.
+
+    Args:
+        ref_data: The reference data.
+        compare_data: The comparison data.
+
+    Returns:
+        plot_data: The dataset for other columns.
+        sex_data: The dataset for sex distribution.
+    """
     plot_data = pd.DataFrame()
     # Add data_ref to the plot_data dataframe while adding _ref to the column names
     for col in ref_data.columns:
@@ -197,6 +216,9 @@ plot_data, sex_data = merge_data(data_ref, compare_data)
 
 
 def on_button(state):
+    """
+    Runs the drift detection scenario and displays the results when the button is clicked.
+    """
     scenario = tp.create_scenario(scenario_cfg)
     state.compare_data = pd.read_csv(state.compare_path + ".csv")
     scenario.compare_data.write(state.compare_data)
@@ -211,6 +233,10 @@ def on_button(state):
 
 
 page = """
+<center>
+<|navbar|lov={[("page1", "Homepage"), ("https://docs.taipy.io/en/latest/manuals/about/", "Taipy Docs"), ("https://docs.taipy.io/en/latest/getting_started/", "Getting Started")]}|>
+</center>
+
 # **Drift Detection**{: .color-primary} in Diabetes Dataset
 
 <|layout|columns=1 3|
@@ -239,5 +265,6 @@ page = """
 
 """
 
-gui = Gui(page)
-gui.run(use_reloader=True)
+if __name__ == "__main__":
+    gui = Gui(page=page)
+    gui.run(title="Drift Detection")

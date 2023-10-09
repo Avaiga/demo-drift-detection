@@ -1,4 +1,4 @@
-taipy
+taipy==2.4.0
 pandas
 numpy
 scipy

@@ -176,12 +176,12 @@ scenario_cfg = Config.scenarios["drift_scenario"]
 scenario = tp.Core().run()
 
 scenario = tp.create_scenario(scenario_cfg)
-scenario.compare_data.write(pd.read_csv("data_ref.csv"))
+scenario.compare_data.write(pd.read_csv("data/data_ref.csv"))
 tp.submit(scenario)
-results = scenario.results.read()
+results = scenario.drift_results.read()
 
-data_ref = pd.read_csv("data_ref.csv")
-compare_path = "data_ref"
+data_ref = pd.read_csv("data/data_ref.csv")
+compare_path = "data/data_ref"
 compare_data = pd.read_csv(compare_path + ".csv")
 
 
@@ -267,7 +267,7 @@ page = """
 |>
 
 <|part|class_name=card|
-<|{plot_data}|chart|type=histogram|y[1]=bp_ref|y[2]=bp_compare|title=Blood Pressure Distribution|>
+<|{plot_data}|chart|type=histogram|y[1]=blood_pressure_ref|y[2]=blood_pressure_compare|title=Blood Pressure Distribution|>
 |>
 |>
 

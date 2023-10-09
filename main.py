@@ -13,62 +13,64 @@ import pandas as pd
 import scipy.stats as stats
 
 
-def detect_categorical(df: pd.DataFrame) -> list:
+def detect_categorical(dataset: pd.DataFrame) -> list:
     """
     Detect the names of categorical columns in a dataframe.
 
     Args:
-        df: The dataframe to detect categorical columns from.
+        dataset: The dataframe to detect categorical columns from.
 
     Returns:
         A list of categorical column names.
     """
     categorical = []
-    for col in df.columns:
-        if df[col].dtype == "object":
+    for col in dataset.columns:
+        if dataset[col].dtype == "object":
             categorical.append(col)
     return categorical
 
 
-def detect_numerical(df: pd.DataFrame) -> list:
+def detect_numerical(dataset: pd.DataFrame) -> list:
     """
     Detect the names of numerical columns in a dataframe.
 
     Args:
-        df: The dataframe to detect numerical columns from.
+        dataset: The dataframe to detect numerical columns from.
 
     Returns:
         A list of numerical column names.
     """
     numerical = []
-    for col in df.columns:
-        if df[col].dtype != "object":
+    for col in dataset.columns:
+        if dataset[col].dtype != "object":
             numerical.append(col)
     return numerical
 
 
-def ks_2samp(x1: pd.Series, x2: pd.Series) -> float:
+def ks_2samp(series_1: pd.Series, series_2: pd.Series) -> float:
     """
     Runs the two-sample Kolmogorov-Smirnov test on two series.
 
     Args:
-        x1: The first series.
-        x2: The second series.
+        series_1: The first series.
+        series_2: The second series.
 
     Returns:
         The p-value of the test.
     """
-    analysis = stats.ks_2samp(x1, x2)
+    analysis = stats.ks_2samp(series_1, series_2)
     return int(analysis[1] * 100) / 100
 
 
-def kolmogorov(df: pd.DataFrame, ref_df: pd.DataFrame, num_cols: list) -> dict:
+def kolmogorov(
+    dataset: pd.DataFrame, ref_dataset: pd.DataFrame, num_cols: list
+) -> dict:
     """
     Runs the two-sample Kolmogorov-Smirnov test on all numerical columns in a dataframe.
 
     Args:
-        df: The dataframe to run the test on.
-        ref_df: The reference dataframe to compare against.
+        dataset: The dataframe to run the test on.
+        ref_dataset: The reference dataframe to compare against.
         num_cols: The list of numerical column names.
 
     Returns:
@@ -76,45 +78,51 @@ def kolmogorov(df: pd.DataFrame, ref_df: pd.DataFrame, num_cols: list) -> dict:
     """
     ks_dict = {}
     for col in num_cols:
-        ks_dict[col] = ks_2samp(df[col], ref_df[col])
+        ks_dict[col] = ks_2samp(dataset[col], ref_dataset[col])
     return ks_dict
 
 
-def chi_squared_2samp(x1: pd.Series, x2: pd.Series) -> float:
+def chi_squared_2samp(series_1: pd.Series, series_2: pd.Series) -> float:
     """
     Runs the two-sample chi-squared test on two series.
 
     Args:
-        x1: The first series.
-        x2: The second series.
+        series_1: The first series.
+        series_2: The second series.
 
     Returns:
         The p-value of the test.
     """
     # Get the unique values
-    x1_unique = x1.unique()
-    x2_unique = x2.unique()
+    series_1_unique = series_1.unique()
+    series_2_unique = series_2.unique()
     # Get the frequencies
-    x1_freq = x1.value_counts()
-    x2_freq = x2.value_counts()
+    series_1_freq = series_1.value_counts()
+    series_2_freq = series_2.value_counts()
     # Get the expected frequencies
-    x1_exp_freq = []
-    x2_exp_freq = []
-    for i in range(len(x1_unique)):
-        x1_exp_freq.append(x1_freq[x1_unique[i]] * len(x2) / len(x1))
-    for i in range(len(x2_unique)):
-        x2_exp_freq.append(x2_freq[x2_unique[i]] * len(x1) / len(x2))
-    analysis = stats.chisquare(x1_exp_freq, x2_exp_freq)
+    series_1_exp_freq = []
+    series_2_exp_freq = []
+    for i in range(len(series_1_unique)):
+        series_1_exp_freq.append(
+            series_1_freq[series_1_unique[i]] * len(series_2) / len(series_1)
+        )
+    for i in range(len(series_2_unique)):
+        series_2_exp_freq.append(
+            series_2_freq[series_2_unique[i]] * len(series_1) / len(series_2)
+        )
+    analysis = stats.chisquare(series_1_exp_freq, series_2_exp_freq)
     return int(analysis[1] * 100) / 100
 
 
-def chi_squared(df: pd.DataFrame, ref_df: pd.DataFrame, cat_cols: list) -> dict:
+def chi_squared(
+    dataset: pd.DataFrame, ref_dataset: pd.DataFrame, cat_cols: list
+) -> dict:
     """
     Runs the chi-squared test on all categorical columns in a dataframe.
 
     Args:
-        df: The dataframe to run the test on.
-        ref_df: The reference dataframe to compare against.
+        dataset: The dataframe to run the test on.
+        ref_dataset: The reference dataframe to compare against.
         cat_cols: The list of categorical column names.
 
     Returns:
@@ -122,7 +130,7 @@ def chi_squared(df: pd.DataFrame, ref_df: pd.DataFrame, cat_cols: list) -> dict:
     """
     chi_dict = {}
     for col in cat_cols:
-        chi_dict[col] = chi_squared_2samp(df[col], ref_df[col])
+        chi_dict[col] = chi_squared_2samp(dataset[col], ref_dataset[col])
     return chi_dict
 
 
@@ -223,7 +231,7 @@ def on_button(state):
     state.compare_data = pd.read_csv("data/" + state.compare_path + ".csv")
     scenario.compare_data.write(state.compare_data)
     tp.submit(scenario)
-    state.results = scenario.results.read()
+    state.results = scenario.drift_results.read()
     # If the Drift column has any True values, notify the user
     if state.results["Drift"].any():
         notify(state, "info", "Potential Drift Detected")

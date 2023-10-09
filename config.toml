@@ -1,5 +1,5 @@
 
-[DATA_NODE.ref_data]
+[DATA_NODE.reference_data]
 storage_type = "csv"
 default_path = "data_ref.csv"
 scope = "SCENARIO:SCOPE"
@@ -54,7 +54,7 @@ outputs = ["results:SECTION"]
 function = "__main__.collect_results:function"
 skippable = "True:bool"
 
-[DATA_NODE.results]
+[DATA_NODE.drift_results]
 storage_type = "pickle"
 scope = "SCENARIO:SCOPE"
 

@@ -1,4 +1,4 @@
-age,sex,bmi,bp
+age,sex,body_mass_index,blood_pressure
 59.0,Female,32.1,101.0
 48.0,Male,21.6,87.0
 72.0,Female,30.5,93.0

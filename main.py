@@ -181,8 +181,8 @@ tp.submit(scenario)
 results = scenario.drift_results.read()
 
 data_ref = pd.read_csv("data/data_ref.csv")
-compare_path = "data/data_ref"
-compare_data = pd.read_csv(compare_path + ".csv")
+compare_path = "data_ref"
+compare_data = pd.read_csv("data/" + compare_path + ".csv")
 
 
 def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame):
@@ -198,13 +198,10 @@ def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame):
         plot_data: The dataset for other columns.
         sex_data: The dataset for sex distribution.
     """
-    plot_data = pd.DataFrame()
-    # Add data_ref to the plot_data dataframe while adding _ref to the column names
-    for col in ref_data.columns:
-        plot_data[col + "_ref"] = ref_data[col]
-    # Add the comparison data to the plot_data dataframe
-    for col in compare_data.columns:
-        plot_data[col + "_compare"] = compare_data[col]
+    bp_data = [
+        {"Blood Pressure": list(ref_data["blood_pressure"])},
+        {"Blood Pressure": list(compare_data["blood_pressure"])},
+    ]
     # Count the Male and Female rows in ref and compare
     male_ref = ref_data[ref_data["sex"] == "Male"].shape[0]
     male_compare = compare_data[compare_data["sex"] == "Male"].shape[0]
@@ -217,10 +214,10 @@ def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame):
             "Female": [female_ref, female_compare],
         }
     )
-    return plot_data, sex_data
+    return bp_data, sex_data
 
 
-plot_data, sex_data = merge_data(data_ref, compare_data)
+bp_data, sex_data = merge_data(data_ref, compare_data)
 
 
 def on_button(state):
@@ -237,7 +234,28 @@ def on_button(state):
         notify(state, "info", "Potential Drift Detected")
     else:
         notify(state, "success", "No Drift Detected")
-    state.plot_data, state.sex_data = merge_data(data_ref, state.compare_data)
+    state.bp_data, state.sex_data = merge_data(data_ref, state.compare_data)
+
+
+bp_options = [
+    # First data set displayed as green-ish, and 5 bins
+    {
+        "marker": {"color": "#4A4", "opacity": 0.8},
+        "nbinsx": 10,
+    },
+    # Second data set displayed as red-ish, and 25 bins
+    {
+        "marker": {"color": "#A33", "opacity": 0.8, "text": "Compare Data"},
+        "nbinsx": 10,
+    },
+]
+
+bp_layout = {
+    # Overlay the two histograms
+    "barmode": "overlay",
+    "title": "Blood Pressure Distribution (Green = Reference, Red = Compare)",
+    "showlegend": False,
+}
 
 
 page = """
@@ -259,7 +277,13 @@ page = """
 |>
 |>
 
-<br/>
+<|Reference Dataset and Compare Dataset|expandable|expanded=False|
+<|layout|columns=1 1|
+<|{data_ref}|table|page_size=5|>
+
+<|{compare_data}|table|page_size=5|>
+|>
+|>
 
 <|layout|columns=1 1|
 <|part|class_name=card|
@@ -267,7 +291,7 @@ page = """
 |>
 
 <|part|class_name=card|
-<|{plot_data}|chart|type=histogram|y[1]=blood_pressure_ref|y[2]=blood_pressure_compare|title=Blood Pressure Distribution|>
+<|{bp_data}|chart|type=histogram|options={bp_options}|layout={bp_layout}|>
 |>
 |>
 
@@ -275,4 +299,4 @@ page = """
 
 if __name__ == "__main__":
     gui = Gui(page=page)
-    gui.run(title="Drift Detection")
+    gui.run(title="Drift Detection", use_reloader=True)

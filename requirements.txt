@@ -1,4 +1,4 @@
-taipy==2.4.0
+taipy==3.0.0.dev3
 pandas
 numpy
 scipy

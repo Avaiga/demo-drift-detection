@@ -5,9 +5,6 @@ from taipy import Core
 from pages import *
 
 
-pages = {"/": root_page, "DriftDetection": Drift}
-
-
 if __name__ == "__main__":
-    gui = Gui(pages=pages)
+    gui = Gui(page=Drift)
     gui.run(title="Drift Detection")

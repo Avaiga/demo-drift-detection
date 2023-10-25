@@ -1,5 +1,3 @@
-<|{scenario}|scenario_selector|>
-
 <|layout|columns=1 1|
 <|part|class_name=card|
 ### Select Reference Data<br/>

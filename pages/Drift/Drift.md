@@ -32,7 +32,8 @@
 
 <br/>
 ### Run the scenario:
-<|{scenario}|scenario|on_submission_change=on_submission_status_change|>
+<|{scenario}|scenario|on_submission_change=on_submission_status_change|expandable=False|expanded=False|>
+
 <|{scenario}|scenario_dag|>
 
 <br/>

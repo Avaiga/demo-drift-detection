@@ -12,21 +12,7 @@ from taipy.gui import notify
 
 from configuration.config import scenario_cfg
 
-ref_data = pd.read_csv("data/data_ref.csv")
-
 Drift = Markdown("pages/Drift/Drift.md")
-
-tp.Core().run()
-scenario = tp.create_scenario(scenario_cfg)
-
-ref_selected = "data_ref"
-compare_selected = "data_noisy"
-
-ref_data = pd.read_csv("data/" + ref_selected + ".csv")
-scenario.reference_data.write(ref_data)
-
-compare_data = pd.read_csv("data/" + compare_selected + ".csv")
-scenario.compare_data.write(compare_data)
 
 
 def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame):
@@ -61,18 +47,15 @@ def merge_data(ref_data: pd.DataFrame, compare_data: pd.DataFrame):
     return bp_data, sex_data
 
 
-bp_data, sex_data = merge_data(ref_data, compare_data)
-
-
 def on_ref_change(state):
     state.ref_data = pd.read_csv("data/" + state.ref_selected + ".csv")
-    scenario.reference_data.write(state.ref_data)
+    state.scenario.reference_data.write(state.ref_data)
     state.bp_data, state.sex_data = merge_data(state.ref_data, state.compare_data)
 
 
 def on_compare_change(state):
     state.compare_data = pd.read_csv("data/" + state.compare_selected + ".csv")
-    scenario.compare_data.write(state.compare_data)
+    state.scenario.compare_data.write(state.compare_data)
     state.bp_data, state.sex_data = merge_data(state.ref_data, state.compare_data)
 
 
